@@ -21,7 +21,8 @@ def load_sent():
     Tương thích format cũ (key 'SKU|ngày-lô'): lấy phần trước '|' làm SKU."""
     m = {}
     if os.path.exists(SENT_LOG):
-        with open(SENT_LOG, encoding="utf-8") as f:
+        # utf-8-sig: nuốt BOM nếu có (tránh BOM ở đầu file làm hỏng khóa dòng đầu -> dedup sai)
+        with open(SENT_LOG, encoding="utf-8-sig") as f:
             for row in csv.reader(f):
                 if not row or len(row) < 2:
                     continue
