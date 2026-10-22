@@ -12,7 +12,7 @@ import received_not_sold as rule
 import mailer
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SENT_LOG = os.path.join(HERE, "sent_log_code.csv")   # mỗi dòng = "Mã hàng(Code), ngày-gửi" (append, giữ history).
+SENT_LOG = os.path.join(HERE, "alert_sent_log.csv")  # mỗi dòng = "Mã hàng(Code), ngày-gửi" (append, giữ history).
 #   Grain alert = Code (mặt hàng+màu). File sent_log.csv cũ (grain SKU) giữ lại làm lịch sử, KHÔNG dùng nữa.
 
 
@@ -70,7 +70,7 @@ def main(dry):
     else:
         n = mailer.send(subj, html)
         append_sent([r[0] for r in new])
-        print(f"Đã gửi tới {n} người; ghi {len(new)} mặt hàng vào sent_log_code.csv.")
+        print(f"Đã gửi tới {n} người; ghi {len(new)} mặt hàng vào alert_sent_log.csv.")
 
 
 if __name__ == "__main__":
