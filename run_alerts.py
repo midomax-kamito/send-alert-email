@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-"""Orchestrator: chạy rule -> nếu có SKU MỚI -> render HTML -> gửi mail. Dedup để không gửi lại SKU đã báo.
-  python run_alerts.py            # gửi thật (cần ALERT_SMTP_PASSWORD)
+"""Orchestrator: chạy rule -> lọc SKU đủ điều kiện (cooldown) -> render HTML -> gửi mail.
+Dedup = cooldown theo SKU: SKU đã gửi bị chặn cfg.COOLDOWN_DAYS ngày; sau đó nếu vẫn fail thì nhắc lại.
+  python run_alerts.py            # gửi thật (cần kênh Graph/SMTP)
   python run_alerts.py --dry-run  # chỉ in + xuất preview.html, KHÔNG gửi
 Lịch: thêm dòng gọi file này vào run_daily.bat."""
 import sys, os, io, csv, datetime
@@ -11,34 +12,53 @@ import received_not_sold as rule
 import mailer
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-SENT_LOG = os.path.join(HERE, "sent_log.csv")   # key = "SKU|ngày nhập" -> chỉ báo 1 lần / SKU-lần-nhập
+SENT_LOG = os.path.join(HERE, "sent_log_code.csv")   # mỗi dòng = "Mã hàng(Code), ngày-gửi" (append, giữ history).
+#   Grain alert = Code (mặt hàng+màu). File sent_log.csv cũ (grain SKU) giữ lại làm lịch sử, KHÔNG dùng nữa.
 
 
 def load_sent():
-    s = set()
+    """Đọc sent_log.csv -> dict {sku: ngày gửi GẦN NHẤT (date)}.
+    Tương thích format cũ (key 'SKU|ngày-lô'): lấy phần trước '|' làm SKU."""
+    m = {}
     if os.path.exists(SENT_LOG):
         with open(SENT_LOG, encoding="utf-8") as f:
             for row in csv.reader(f):
-                if row:
-                    s.add(row[0])
-    return s
+                if not row or len(row) < 2:
+                    continue
+                sku = row[0].split("|")[0].strip()
+                try:
+                    d = datetime.date.fromisoformat(row[1].strip())
+                except ValueError:
+                    continue   # bỏ dòng ngày hỏng
+                if sku and (sku not in m or d > m[sku]):
+                    m[sku] = d
+    return m
 
 
-def append_sent(keys):
+def append_sent(skus):
+    """Ghi mỗi SKU vừa gửi 1 dòng [sku, hôm nay]."""
     with open(SENT_LOG, "a", newline="", encoding="utf-8") as f:
         w = csv.writer(f); today = datetime.date.today().isoformat()
-        for k in keys:
-            w.writerow([k, today])
+        for sku in skus:
+            w.writerow([sku, today])
 
 
 def main(dry):
     cn, cur = rule.connect()
     rows = rule.detect(cur); cn.close()
     sent = load_sent()
-    new = [r for r in rows if f"{r[0]}|{r[2]}" not in sent]   # r[0]=SKU, r[2]=first_receipt
-    print(f"{len(rows)} SKU hit rule; {len(new)} MỚI (chưa báo).")
+    today = datetime.date.today()
+    cd = getattr(cfg, "COOLDOWN_DAYS", 2)
+
+    def eligible(sku):
+        # Gửi nếu chưa từng gửi, hoặc đã qua cooldown (today - lần gửi cuối > COOLDOWN_DAYS)
+        last = sent.get(sku)
+        return last is None or (today - last).days > cd
+
+    new = [r for r in rows if eligible(r[0])]   # r[0] = Products_Key (khóa dedup, ổn định)
+    print(f"{len(rows)} mặt hàng hit rule; {len(new)} đủ điều kiện gửi (cooldown {cd} ngày/mặt hàng).")
     if not new:
-        print("Không có SKU mới -> không gửi."); return
+        print("Không có mặt hàng đủ điều kiện -> không gửi."); return
     html = rule.render_html(new)
     subj = f"Hàng nhập kho hơn {cfg.NO_SALE_DAYS} ngày chưa phát sinh doanh số"
     if not dry and not mailer.has_channel():
@@ -49,8 +69,8 @@ def main(dry):
         print("[DRY-RUN] KHÔNG gửi. Subject:", subj); print("Preview HTML ->", out)
     else:
         n = mailer.send(subj, html)
-        append_sent([f"{r[0]}|{r[2]}" for r in new])
-        print(f"Đã gửi tới {n} người; ghi {len(new)} SKU vào sent_log.csv.")
+        append_sent([r[0] for r in new])
+        print(f"Đã gửi tới {n} người; ghi {len(new)} mặt hàng vào sent_log_code.csv.")
 
 
 if __name__ == "__main__":

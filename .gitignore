@@ -4,7 +4,8 @@ __pycache__/
 
 # Runtime logs & dedup state (thay đổi mỗi lần chạy, không track)
 logs/
-sent_log.csv
+sent_log*.csv
+preview.html
 
 # Secrets — creds lấy từ 1c-data-sync/config.py (gitignored), KHÔNG lưu ở đây
 .env
