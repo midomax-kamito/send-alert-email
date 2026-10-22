@@ -2,7 +2,8 @@
 """Cấu hình alert: người gửi/nhận + tham số rule + bộ lọc nhiễu. (DB + Graph creds dùng config.py gốc của repo.)"""
 import os, sys
 # Dùng chung config.py (DB + Graph creds, gitignored) của repo 1c-data-sync — 1 nguồn secret duy nhất.
-sys.path.insert(0, r"D:\midomax\midomax\3. project\1c-data-sync-repo\1c-data-sync")
+# Path config: env C1_CONFIG_DIR (Linux/server), fallback path Windows (máy dev).
+sys.path.insert(0, os.environ.get("C1_CONFIG_DIR", r"D:\midomax\midomax\3. project\1c-data-sync-repo\1c-data-sync"))
 import config
 
 # ================== EMAIL — GỬI QUA OUTLOOK M365 CỦA TỔ CHỨC (@midomax.vn) ==================
@@ -27,6 +28,11 @@ RECIPIENTS    = [   # người nhận
     "bi01@midomax.vn",
     "thaont@midomax.vn",
 ]
+# Override tạm (test/debug): ALERT_RECIPIENTS="a@midomax.vn,b@midomax.vn" -> chỉ gửi danh sách này.
+# VD chạy thử gửi mỗi bi01: ALERT_RECIPIENTS=bi01@midomax.vn python3 run_alerts.py
+_env_rcpt = os.environ.get("ALERT_RECIPIENTS", "").strip()
+if _env_rcpt:
+    RECIPIENTS = [x.strip() for x in _env_rcpt.split(",") if x.strip()]
 
 # ---- Kênh A: Microsoft Graph (ưu tiên) ----
 GRAPH_TENANT_ID = os.environ.get("ALERT_GRAPH_TENANT")   or getattr(config, "directory_tenant_id", "")

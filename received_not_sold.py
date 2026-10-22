@@ -8,7 +8,8 @@ Nguồn: DWH kazgevim_1C (Posted=1, DeletionMark=0).
 """
 import sys, os
 # Dùng chung config.py (DB creds, gitignored) của repo 1c-data-sync — 1 nguồn secret duy nhất.
-sys.path.insert(0, r"D:\midomax\midomax\3. project\1c-data-sync-repo\1c-data-sync")
+# Path config: env C1_CONFIG_DIR (Linux/server), fallback path Windows (máy dev).
+sys.path.insert(0, os.environ.get("C1_CONFIG_DIR", r"D:\midomax\midomax\3. project\1c-data-sync-repo\1c-data-sync"))
 import config, pymysql
 import alert_config as cfg
 
