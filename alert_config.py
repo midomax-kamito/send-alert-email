@@ -27,6 +27,7 @@ RECIPIENTS    = [   # người nhận
     "trinhltt@midomax.vn",
     "bi01@midomax.vn",
     "thaont@midomax.vn",
+    "trangnth@midomax.vn",
 ]
 # Override tạm (test/debug): ALERT_RECIPIENTS="a@midomax.vn,b@midomax.vn" -> chỉ gửi danh sách này.
 # VD chạy thử gửi mỗi bi01: ALERT_RECIPIENTS=bi01@midomax.vn python3 run_alerts.py
