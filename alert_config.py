@@ -73,26 +73,6 @@ EXCLUDE_NAME_EXACT      = []
 # trong nhóm BÁN (Phụ kiện/Vợt) nơi 'VT' KHÔNG mang nghĩa 'vật tư' -> lọc theo prefix không đáng tin.
 # Việc loại vật tư/bao bì/không-bán giao cho EXCLUDE_GROUP_EXACT (theo nhóm) đảm nhiệm.
 EXCLUDE_SKU_REGEX       = r""
-# Loại theo NHÓM DANH SÁCH (Products.Parent_Key -> Description = nhóm cha trực tiếp của mặt hàng).
-# Khớp TRIM + general_ci (không phân biệt hoa thường, bỏ khoảng trắng thừa). Gồm: vật tư/chi phí/phí/
-# công cụ-thiết bị/in ấn/bao bì/dịch vụ + toàn bộ nhóm HÀNG MẪU (không bán). Giữ nhóm "Dự án".
-EXCLUDE_GROUP_EXACT     = [
-    # --- Không phải hàng bán (vật tư / chi phí / công cụ / in ấn / bao bì / dịch vụ) ---
-    "Vật tư khác", "Vật tư băng dính", "Vật tư (kho, showroom, BP in ép)",
-    "CPQLBH khác", "CP Lương", "Chi phí QLBH",
-    "Phí khác", "Phí ship", "Phí làm khuôn, mẫu", "Phí test mẫu",
-    "Công cụ dụng cụ, thiết bị khác", "Công cụ dụng cụ, thiết bị",
-    "Máy tính", "Vách, giá, kệ, tủ", "Bàn ghế", "Điều hòa", "Khung chữ A",
-    "Decal", "Mực in", "Bột pet",
-    "Túi, hộp đựng sản phẩm", "Túi, thùng bán hàng",
-    "Dịch vụ", "Hóa đơn", "Khác",
-    # --- Hàng MẪU (nhập kho nhưng không bán) ---
-    "Giày Mẫu", "Giày Mẫu Kamito, Mizuno", "Giày Mẫu Khác",
-    "Vợt Mẫu", "Vợt Mẫu Kamito, Mizuno", "Vợt Mẫu Khác",
-    "Quần áo Mẫu", "Quần áo Mẫu Kamito, Mizuno", "Quần áo Mẫu Khác",
-    "Phụ kiện Mẫu", "Phụ kiện Mẫu Kamito, Mizuno", "Phụ kiện Mẫu Khác",
-    "Quả bóng Mẫu", "Quả bóng Mẫu Kamito, Mizuno", "Quả bóng Mẫu Khác",
-    "Túi balo Mẫu", "Túi balo Mẫu Kamito, Mizuno", "Túi balo Mẫu Khác",
-    "Tất Mẫu", "Tất Mẫu Kamito, Mizuno",
-    "Mũ Mẫu", "Mũ mẫu Kamito",
-]
+# Loại theo NHÓM: đã chuyển sang BẢNG DWH `tb_excluded_group_products_sport_brand` (nguồn chuẩn, dùng chung
+# với vw_sku.is_excluded_group_products_sport_brand). received_not_sold.py anti-join trực tiếp bảng đó.
+# Sửa danh sách = INSERT/UPDATE is_active/DELETE trong DB (không cần sửa code). Nhóm "Dự án" không đưa vào bảng.

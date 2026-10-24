@@ -34,14 +34,9 @@ def detect(cur):
     if _exact:
         _vals = ",".join("'" + x.replace("'", "''") + "'" for x in _exact)
         exact_clause = f"AND (p.Description IS NULL OR p.Description COLLATE utf8mb4_general_ci NOT IN ({_vals}))"
-    # Loại theo NHÓM DANH SÁCH = Description nhóm CHA (par = Products của p.Parent_Key). TRIM + general_ci
-    # (bỏ khoảng trắng thừa trong data + không phân biệt hoa/thường). Gồm vật tư/chi phí/... + hàng Mẫu.
-    _grp = getattr(cfg, "EXCLUDE_GROUP_EXACT", []) or []
-    grp_clause = ""
-    if _grp:
-        _gvals = ",".join("'" + x.replace("'", "''") + "'" for x in _grp)
-        grp_clause = ("AND (par.Description IS NULL OR "
-                      f"TRIM(par.Description) COLLATE utf8mb4_general_ci NOT IN ({_gvals}))")
+    # Loại theo NHÓM: anti-join bảng tb_excluded_group_products_sport_brand (nguồn chuẩn trong DWH, sửa bằng SQL).
+    # par = nhóm cha trực tiếp của SP (= group_products_sport_brand). Cả 2 unicode_ci -> không cần COLLATE.
+    # Nhóm mới KHÔNG có trong bảng -> không loại (chỉ loại khi được thêm vào bảng).
     # 1) BẢNG LÔ NHẬP: mỗi dòng = (phiếu × Products_Key), SL = tổng mọi màu/size của SP trong phiếu.
     #    Lọc CẤU TRÚC: kho bán được, loại Hàng hóa, tên ≠ bao bì, Code ≠ ^VT, tên ∉ loại cứng. (≥N ngày & SL>Q ở bước 4)
     cur.execute("DROP TEMPORARY TABLE IF EXISTS tmp_recv")
@@ -57,6 +52,8 @@ def detect(cur):
                            = CAST(ik.Ref_Key          AS char(50) charset utf8mb4) COLLATE utf8mb4_general_ci
         LEFT JOIN Products p ON p.Ref_Key = g.Products_Key
         LEFT JOIN Products par ON par.Ref_Key = p.Parent_Key
+        LEFT JOIN tb_excluded_group_products_sport_brand exg
+               ON TRIM(par.Description) = exg.group_products_sport_brand AND exg.is_active = 1
         LEFT JOIN Warehouses w ON w.Ref_Key = h.Warehouse_Key
         WHERE h.Posted=1 AND h.DeletionMark=0
           AND ic.SKU <> ''
@@ -66,7 +63,7 @@ def detect(cur):
           AND CAST(ik.Description AS char(50) charset utf8mb4) COLLATE utf8mb4_general_ci = %s
           AND (%s = '' OR p.Description IS NULL OR p.Description NOT REGEXP %s)
           {exact_clause}
-          {grp_clause}
+          AND exg.group_products_sport_brand IS NULL
           AND (%s = '' OR TRIM(ic.Code) NOT REGEXP %s)
         GROUP BY h.Ref_Key, g.Products_Key""",
         (cfg.EXCLUDE_WAREHOUSE_REGEX, cfg.EXCLUDE_WAREHOUSE_REGEX, cfg.ITEM_KIND,
