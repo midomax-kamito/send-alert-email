@@ -74,8 +74,10 @@ EXCLUDE_NAME_EXACT      = [
     "Hình dán in UV",
     "Giấy chống ẩm KT 34*26 (cm)",
 ]
-# SKU KHÔNG tính theo prefix: 'VT' = vật tư (bao bì/công cụ dụng cụ/tem/decan...). Để "" nếu không lọc.
-EXCLUDE_SKU_REGEX       = r"^VT"
+# SKU prefix: TẮT (để rỗng). Trước dùng '^VT' với giả định VT = vật tư, nhưng nhiều SKU ^VT nằm
+# trong nhóm BÁN (Phụ kiện/Vợt) nơi 'VT' KHÔNG mang nghĩa 'vật tư' -> lọc theo prefix không đáng tin.
+# Việc loại vật tư/bao bì/không-bán giao cho EXCLUDE_GROUP_EXACT (theo nhóm) đảm nhiệm.
+EXCLUDE_SKU_REGEX       = r""
 # Loại theo NHÓM DANH SÁCH (Products.Parent_Key -> Description = nhóm cha trực tiếp của mặt hàng).
 # Khớp TRIM + general_ci (không phân biệt hoa thường, bỏ khoảng trắng thừa). Gồm: vật tư/chi phí/phí/
 # công cụ-thiết bị/in ấn/bao bì/dịch vụ + toàn bộ nhóm HÀNG MẪU (không bán). Giữ nhóm "Dự án".
