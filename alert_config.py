@@ -64,16 +64,11 @@ COOLDOWN_DAYS = 2
 ITEM_KIND               = "Hàng hóa"
 # Kho KHÔNG tính (bảo hành / hàng mẫu / chụp hình / công cụ-dụng cụ / gửi NCC / trung gian)
 EXCLUDE_WAREHOUSE_REGEX = r"bảo hành|hàng mẫu|chụp hình|CCDC|gửi nhà cung cấp|trung gian"
-# Hàng KHÔNG tính theo tên (bao bì/phụ kiện). Để "" nếu không muốn lọc.
-EXCLUDE_NAME_REGEX      = r"hộp|carton|thùng|thẻ bài"
-# Loại CỨNG theo TÊN CHÍNH XÁC (bao bì/vật tư lọt vào loại Hàng hóa mà regex không bắt). Khớp tuyệt đối Products.Description.
-EXCLUDE_NAME_EXACT      = [
-    "Mác ép nhiệt Kamito",
-    "Túi nilong Kamito in 2 mặt KT 28*38+5",
-    "Bìa Khuyết KT 322*238(Bìa lưng)",
-    "Hình dán in UV",
-    "Giấy chống ẩm KT 34*26 (cm)",
-]
+# TẮT (để rỗng). Lọc theo TỪ KHÓA trong tên không đáng tin: 'hộp' còn nằm trong tên hàng BÁN được
+# (bóng 'hộp 3 quả', grip '21 cuộn/hộp', combo quà) -> loại nhầm hàng bán. Loại bao bì giao cho EXCLUDE_GROUP_EXACT.
+EXCLUDE_NAME_REGEX      = r""
+# TẮT (để rỗng). 5 tên trước đây đều đã được EXCLUDE_GROUP_EXACT (theo nhóm) phủ -> thừa.
+EXCLUDE_NAME_EXACT      = []
 # SKU prefix: TẮT (để rỗng). Trước dùng '^VT' với giả định VT = vật tư, nhưng nhiều SKU ^VT nằm
 # trong nhóm BÁN (Phụ kiện/Vợt) nơi 'VT' KHÔNG mang nghĩa 'vật tư' -> lọc theo prefix không đáng tin.
 # Việc loại vật tư/bao bì/không-bán giao cho EXCLUDE_GROUP_EXACT (theo nhóm) đảm nhiệm.
