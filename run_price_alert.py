@@ -40,6 +40,11 @@ def append_sent(keys):
 
 
 def main(dry, lookback=None):
+    # Lần chạy ĐẦU TIÊN (chưa có log) & không chỉ định --lookback -> quét rộng bắt đợt đổi gần nhất (ra mắt).
+    first_run = lookback is None and not os.path.exists(SENT_LOG)
+    if first_run:
+        lookback = getattr(cfg, "PRICE_FIRST_RUN_LOOKBACK", 30)
+        print(f"[first-run] log trống -> quét {lookback} ngày (bắt đợt đổi gần nhất)")
     cn, cur = rule.connect()
     rows = rule.detect(cur, lookback_days=lookback)   # None -> cfg.PRICE_LOOKBACK_DAYS
     cn.close()

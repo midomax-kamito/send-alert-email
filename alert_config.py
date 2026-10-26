@@ -65,6 +65,8 @@ RETAIL_PRICE_KIND   = "a1d6ecca-0372-11ef-84a3-3cfdfe9ee884"
 # Báo thay đổi giá có Date trong N ngày gần nhất (hấp thụ sync trễ / cron lỡ ngày / cuối tuần).
 # Window > 1 ngày nên BẮT BUỘC dedup (price_change_sent_log.csv, key = SKU|ngày|chứng từ mới|giá mới).
 PRICE_LOOKBACK_DAYS = 4
+# Lần chạy ĐẦU TIÊN (chưa có log) quét rộng hơn để bắt đợt đổi giá gần nhất (ra mắt). Sau đó về PRICE_LOOKBACK_DAYS.
+PRICE_FIRST_RUN_LOOKBACK = 30
 # Người nhận alert giá (KHÁC list tồn kho). run_price_alert.py dùng list này; env ALERT_RECIPIENTS override (test).
 PRICE_RECIPIENTS = [
     "minhnb@midomax.vn", "thuongvt@midomax.vn", "phuongnb@midomax.vn", "huepv@midomax.vn",
