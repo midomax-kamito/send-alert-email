@@ -59,6 +59,22 @@ MIN_RECV_QTY = 20   # chỉ alert lô có SL nhập > ngưỡng này (loại nh�
 # VD =2: gửi ngày D -> chặn D+1, D+2 -> D+3 mở lại. Cooldown thuần theo SKU (lô nhập mới trong cooldown vẫn bị chặn).
 COOLDOWN_DAYS = 2
 
+# ---- Rule 2: thay đổi GIÁ BÁN LẺ ----
+# PriceKind 'Giá bán lẻ' trong TypesOfPrices (1C). Giá đổi khi có PriceSetup mới với giá khác lần trước.
+RETAIL_PRICE_KIND   = "a1d6ecca-0372-11ef-84a3-3cfdfe9ee884"
+# Báo thay đổi giá có Date trong N ngày gần nhất (hấp thụ sync trễ / cron lỡ ngày / cuối tuần).
+# Window > 1 ngày nên BẮT BUỘC dedup (price_change_sent_log.csv, key = SKU|ngày|chứng từ mới|giá mới).
+PRICE_LOOKBACK_DAYS = 4
+# Người nhận alert giá (KHÁC list tồn kho). run_price_alert.py dùng list này; env ALERT_RECIPIENTS override (test).
+PRICE_RECIPIENTS = [
+    "minhnb@midomax.vn", "thuongvt@midomax.vn", "phuongnb@midomax.vn", "huepv@midomax.vn",
+    "thaont@midomax.vn", "chatnv@midomax.vn", "tuyenbvt@midomax.vn", "anhnd@midomax.vn",
+    "nganhtt@midomax.vn", "ngoclb@midomax.vn", "hanhvtb@midomax.vn", "hangntk@midomax.vn",
+    "yendtk@midomax.vn", "thangnv@midomax.vn", "anhnt@midomax.vn", "duynt@midomax.vn",
+    "trangnth@midomax.vn", "phuongnt@midomax.vn", "dinhndt@midomax.vn", "trinhltt@midomax.vn",
+    "lyntp@midomax.vn", "tungnd@midomax.vn", "bi01@midomax.vn",
+]
+
 # ---- Bộ lọc nhiễu (REGEXP, utf8mb4_general_ci = không phân biệt hoa thường) ----
 # Chỉ tính loại mặt hàng này (ItemKinds.Description). Loại Dịch vụ/phí... tự bị loại.
 ITEM_KIND               = "Hàng hóa"

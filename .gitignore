@@ -6,7 +6,7 @@ __pycache__/
 logs/
 *sent_log*.csv
 sent_log*.csv
-preview.html
+preview*.html
 
 # Secrets — creds lấy từ 1c-data-sync/config.py (gitignored), KHÔNG lưu ở đây
 .env
