@@ -49,9 +49,9 @@ SMTP_PORT     = 587                                                     # Outloo
 # ---- Tham số rule "nhập nhưng chưa bán" ----
 # Rule B (tốc độ mở bán): xét lô nhập 'đã chín' (ngày nhập + NO_SALE_DAYS <= hôm nay);
 # fail nếu trong [ngày nhập, ngày nhập+NO_SALE_DAYS] không có đơn bán nào.
-NO_SALE_DAYS = 10   # lô nhập đã >= N ngày mà chưa phát sinh đơn bán nào -> alert (business chốt 10 ngày)
+NO_SALE_DAYS = 5    # lô nhập đã >= N ngày mà chưa phát sinh đơn bán nào -> alert (business chốt 5 ngày)
 WINDOW_DAYS  = 90   # trần quét lô nhập: chỉ xét lô nhập cách đây N..WINDOW_DAYS ngày (PHẢI > NO_SALE_DAYS).
-                    #   =90 -> coi như "nhập >=10 ngày chưa bán", cắt trần 90 ngày để query nhẹ + không lôi tồn quá cũ.
+                    #   =90 -> coi như "nhập >=5 ngày chưa bán", cắt trần 90 ngày để query nhẹ + không lôi tồn quá cũ.
 MIN_RECV_QTY = 20   # chỉ alert lô có SL nhập > ngưỡng này (loại nhập mẫu/lẻ 1-2 chiếc). 0 = không lọc SL.
 
 # ---- Dedup: cooldown theo SKU (chống spam, vẫn nhắc định kỳ) ----
