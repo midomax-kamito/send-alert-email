@@ -7,6 +7,8 @@ logs/
 *sent_log*.csv
 sent_log*.csv
 preview*.html
+alert_state.json
+alert_state.json.tmp
 
 # Secrets — creds lấy từ 1c-data-sync/config.py (gitignored), KHÔNG lưu ở đây
 .env

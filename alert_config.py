@@ -54,9 +54,13 @@ WINDOW_DAYS  = 90   # trần quét lô nhập: chỉ xét lô nhập cách đây
                     #   =90 -> coi như "nhập >=5 ngày chưa bán", cắt trần 90 ngày để query nhẹ + không lôi tồn quá cũ.
 MIN_RECV_QTY = 20   # chỉ alert lô có SL nhập > ngưỡng này (loại nhập mẫu/lẻ 1-2 chiếc). 0 = không lọc SL.
 
-# ---- Dedup: cooldown theo SKU (chống spam, vẫn nhắc định kỳ) ----
-# Đã gửi 1 SKU -> chặn COOLDOWN_DAYS ngày tiếp; ngày thứ (COOLDOWN_DAYS+1) nếu vẫn fail thì gửi lại.
-# VD =2: gửi ngày D -> chặn D+1, D+2 -> D+3 mở lại. Cooldown thuần theo SKU (lô nhập mới trong cooldown vẫn bị chặn).
+# ---- Gửi theo so sánh ngày-qua-ngày (THAY cooldown cũ) ----
+# Logic trong run_alerts.py: mỗi ngày lập danh sách mặt hàng "nhập >NO_SALE_DAYS ngày chưa bán".
+#   - Có mặt hàng MỚI so với lần xử lý trước -> gửi FULL danh sách hiện tại, reset bộ đếm ngày lặng.
+#   - Không có mặt hàng mới -> không gửi, tăng bộ đếm; chạm REMINDER_QUIET_DAYS -> gửi nhắc full, reset.
+# Trạng thái lưu ở alert_state.json (prev_keys + quiet_days + last_date). Lần đầu (chưa có state) = gửi full 1 lần.
+REMINDER_QUIET_DAYS = 3   # ngày lặng thứ 3 (không có mặt hàng mới) thì gửi nhắc lại full danh sách
+# COOLDOWN_DAYS: KHÔNG CÒN DÙNG (đã thay bằng logic day-over-day ở trên). Giữ biến để không vỡ import cũ.
 COOLDOWN_DAYS = 2
 
 # ---- Rule 2: thay đổi GIÁ BÁN LẺ ----
